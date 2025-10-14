@@ -30,6 +30,11 @@ def test_client(test_app):
             """
             user_test = User(email="test@example.com", password="test1234")
             db.session.add(user_test)
+            
+            # Add user for Selenium tests
+            user_selenium = User(email="user1@example.com", password="1234")
+            db.session.add(user_selenium)
+            
             db.session.commit()
 
             print("Rutas registradas:")
@@ -79,3 +84,58 @@ def logout(test_client):
         response: Response to GET request to log out.
     """
     return test_client.get("/logout", follow_redirects=True)
+
+
+@pytest.fixture(scope="module")
+def live_server(test_app):
+    """
+    Start a live server for Selenium tests with test database.
+    """
+    import threading
+    from werkzeug.serving import make_server
+    from app.modules.profile.models import UserProfile
+    
+    with test_app.app_context():
+        db.drop_all()
+        db.create_all()
+        
+        # Create test users for Selenium
+        user_test = User(email="test@example.com", password="test1234")
+        user_selenium = User(email="user1@example.com", password="1234")
+        db.session.add(user_test)
+        db.session.add(user_selenium)
+        db.session.commit()
+        
+        # Create profiles for the users
+        profile_test = UserProfile(
+            user_id=user_test.id,
+            name="Test",
+            surname="User",
+            affiliation="Test University",
+            orcid="0000-0000-0000-0001"
+        )
+        profile_selenium = UserProfile(
+            user_id=user_selenium.id,
+            name="Selenium",
+            surname="User",
+            affiliation="Selenium University",
+            orcid="0000-0000-0000-0002"
+        )
+        db.session.add(profile_test)
+        db.session.add(profile_selenium)
+        db.session.commit()
+    
+    # Create server
+    server = make_server("127.0.0.1", 5000, test_app)
+    thread = threading.Thread(target=server.serve_forever)
+    thread.daemon = True
+    thread.start()
+    
+    yield test_app
+    
+    # Shutdown server
+    server.shutdown()
+    
+    with test_app.app_context():
+        db.session.remove()
+        db.drop_all()

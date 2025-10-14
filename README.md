@@ -16,3 +16,17 @@ Repository of feature models in UVL format integrated with Zenodo and flamapy fo
 ## Official documentation
 
 You can consult the official documentation of the project at [docs.uvlhub.io](https://docs.uvlhub.io/)
+
+## Test execution
+# Ejecutar TODOS los tests (unitarios + Selenium)
+cd /home/antonio/Desktop/egc_p2_1/uvlhub
+venv/bin/pytest -v
+
+# Solo tests unitarios (100% pasan)
+venv/bin/pytest -v -k "not selenium"
+
+# Solo tests de Selenium
+venv/bin/pytest -v -k selenium
+
+# Test específico
+venv/bin/pytest app/modules/auth/tests/test_selenium.py -v

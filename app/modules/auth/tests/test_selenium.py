@@ -8,7 +8,7 @@ from core.environment.host import get_host_for_selenium_testing
 from core.selenium.common import close_driver, initialize_driver
 
 
-def test_login_and_check_element():
+def test_login_and_check_element(live_server):
 
     driver = initialize_driver()
 
@@ -40,13 +40,13 @@ def test_login_and_check_element():
             print("Test passed!")
 
         except NoSuchElementException:
+            # Save screenshot for debugging
+            driver.save_screenshot("/tmp/selenium_test_failure.png")
+            print(f"Current URL: {driver.current_url}")
+            print(f"Page title: {driver.title}")
             raise AssertionError("Test failed!")
 
     finally:
 
         # Close the browser
         close_driver(driver)
-
-
-# Call the test function
-test_login_and_check_element()

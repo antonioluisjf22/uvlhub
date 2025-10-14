@@ -6,7 +6,7 @@ from core.environment.host import get_host_for_selenium_testing
 from core.selenium.common import close_driver, initialize_driver
 
 
-def test_webhook_index():
+def test_webhook_index(live_server):
 
     driver = initialize_driver()
 
@@ -30,7 +30,3 @@ def test_webhook_index():
 
         # Close the browser
         close_driver(driver)
-
-
-# Call the test function
-test_webhook_index()
